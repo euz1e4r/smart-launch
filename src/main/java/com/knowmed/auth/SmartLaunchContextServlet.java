@@ -1,6 +1,9 @@
 package com.knowmed.auth;
 
 import java.io.IOException;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -13,6 +16,7 @@ import org.apache.log4j.Logger;
 import ca.uhn.fhir.rest.api.Constants;
 
 /**
+ * Stand alone smart on fhir writable launch context servlet. <br>
  * Communicates with LaunchContextResolver SmartLaunchContextResolver <br>
  * configured by web.xml
  */
@@ -20,7 +24,8 @@ public class SmartLaunchContextServlet extends HttpServlet {
 
 	private static final long serialVersionUID = 1;
 	private final static Logger logger = Logger.getLogger(SmartLaunchContextServlet.class);
-	private final SmartLaunchPersist persist = new SmartLaunchBean();
+	private final SmartLaunchPersist persist = new SmartLaunchPersistJPA();
+	private final static ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
 
 	@Override
 	protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
@@ -51,6 +56,36 @@ public class SmartLaunchContextServlet extends HttpServlet {
 			}
 			persist.store(keys, value);
 			resp.setStatus(HttpStatus.SC_OK);
+		}
+		catch (Exception e) {
+			logger.warn(e.getMessage(), e);
+			resp.setStatus(HttpStatus.SC_INTERNAL_SERVER_ERROR);
+		}
+	}
+
+	@Override
+	public void init() throws ServletException {
+		super.init();
+		executor.scheduleWithFixedDelay(new GarbageCollector(), 0, 1, TimeUnit.HOURS);
+	}
+	
+	public final class GarbageCollector implements Runnable {
+		public GarbageCollector(){
+		}
+		public void run() {
+			persist.gc();
+		}
+	}
+
+	@Override
+	protected void doDelete(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+		try {
+			resp.setContentType(Constants.CT_JSON);
+			resp.setStatus(HttpStatus.SC_OK);
+			String uri = req.getRequestURI();
+			String[] pieces = uri.split("/");
+			String id = pieces[pieces.length-1];
+			persist.erase(id);
 		}
 		catch (Exception e) {
 			logger.warn(e.getMessage(), e);
