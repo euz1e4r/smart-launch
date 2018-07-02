@@ -30,7 +30,7 @@ public class SmartLaunchPersistJPA implements SmartLaunchPersist {
 	/**
 	 * Store by possibly multiple keys.
 	 */
-	public void store(String[] keys, String value) {
+	public void store(String[] keys, String value, String expiry) {
 		EntityManager em = emf.createEntityManager();
 		try {
 			em.getTransaction().begin();

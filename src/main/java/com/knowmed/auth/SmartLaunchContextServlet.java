@@ -51,10 +51,11 @@ public class SmartLaunchContextServlet extends HttpServlet {
 		try {
 			String[] keys = req.getParameterValues("key");
 			String value = req.getParameter("value");
+			String expiry = req.getParameter("expiry");
 			if (keys == null || keys.length == 0|| value == null) {
 				throw new RuntimeException("missing key or value");
 			}
-			persist.store(keys, value);
+			persist.store(keys, value, expiry);
 			resp.setStatus(HttpStatus.SC_OK);
 		}
 		catch (Exception e) {

@@ -1,0 +1,11 @@
+Smart on fire munch context servlet
+
+Packaging
+The servlet is delivered as a war file, smart-launch.war, which works when dropped into a JBoss deployment environment.
+
+Parameters
+ The servlet is dependent on these parameters.
+ 
+     jdbcUrl
+     jdbcUser
+     jbdcPassword

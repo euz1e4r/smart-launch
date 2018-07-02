@@ -55,4 +55,10 @@ public class LaunchContextRecord {
 	public void setValue(String value) {
 		this.value = value;
 	}
+	public Date getExpiry() {
+		return expiry;
+	}
+	public void setExpiry(Date expiry) {
+		this.expiry = expiry;
+	}
 }
