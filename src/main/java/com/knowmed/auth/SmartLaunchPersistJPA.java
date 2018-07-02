@@ -35,7 +35,7 @@ public class SmartLaunchPersistJPA implements SmartLaunchPersist {
 		try {
 			em.getTransaction().begin();
 			for (String key : keys) {
-				LaunchContextRecord ctx = new LaunchContextRecord(key, value);
+				LaunchContextRecord ctx = new LaunchContextRecord(key, value, expiry);
 				em.merge(ctx);
 			}
 			em.getTransaction().commit();
@@ -53,7 +53,7 @@ public class SmartLaunchPersistJPA implements SmartLaunchPersist {
 		EntityManager em = emf.createEntityManager();
 		try {
 			em.getTransaction().begin();
-			em.createNativeQuery("delete from launchcontext where expiry < sysdate");
+			em.createNamedQuery(LaunchContextRecord.QUERY_GC).executeUpdate();
 			em.getTransaction().commit();
 		}
 		finally {

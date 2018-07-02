@@ -5,6 +5,7 @@ import java.util.Date;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
+import javax.persistence.NamedQuery;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
@@ -14,9 +15,11 @@ import javax.persistence.TemporalType;
  */
 @Entity
 @Table(name="LAUNCHCONTEXT")
+@NamedQuery(name=LaunchContextRecord.QUERY_GC, query="delete from LaunchContextRecord where expiry < current_timestamp")
 public class LaunchContextRecord {
 	
 	private final static long day = 1L*24*60*60*1000;
+	public final static String QUERY_GC = "LaunchContextRecord.gc";
 	
 	/**
 	 * Key is access_token or launch_context id
@@ -38,10 +41,11 @@ public class LaunchContextRecord {
 	public LaunchContextRecord() {
 		super();
 	}
-	public LaunchContextRecord(String key, String value) {
+	public LaunchContextRecord(String key, String value, String expiry) {
 		super();
 		this.key = key;
 		this.value = value;
+		this.expiry = expiry == null ? null : new Date(Long.valueOf(expiry));
 	}
 	public String getKey() {
 		return key;

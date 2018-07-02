@@ -4,8 +4,17 @@ Packaging
 The servlet is delivered as a war file, smart-launch.war, which works when dropped into a JBoss deployment environment.
 
 Parameters
- The servlet is dependent on these parameters.
+The servlet is dependent on and configured by these parameters.
  
      jdbcUrl
      jdbcUser
      jbdcPassword
+     
+Protocol
+	HTTP GET - smart launch is compatible with the Mitre OIDC server.
+	HTTP POST - saves a launch context.
+		Parameters are:
+			key - primary key(s) to store by. Multiple keys are supported.
+			value - JSON, exactly as to be delivered via GET
+			expiry - expiration time, large integer, millisecond of epoch. Optional.
+	Key date likely includes the launch context id and the access token.

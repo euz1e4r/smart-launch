@@ -12,7 +12,7 @@
 			<property name="javax.persistence.jdbc.user" value="${jdbcUser}" />
 			<property name="javax.persistence.jdbc.password" value="${jdbcPassword}" />
 			<property name="eclipselink.target-server" value="None" />
-			<property name="eclipselink.logging.level" value="FINE" />
+			<property name="eclipselink.logging.level" value="INFO" />
 			<property name="eclipselink.validation-only" value="false" />
 			<property name="eclipselink.logging.exceptions" value="true" />
 			<property name="eclipselink.logging.logger" value="DefaultLogger" />
