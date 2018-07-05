@@ -1,5 +1,9 @@
 package com.knowmed.auth;
 
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Properties;
+
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
@@ -46,7 +50,14 @@ public class SmartLaunchPersistJPA implements SmartLaunchPersist {
 	}
 	
 	protected void setUp() throws Exception {
-	    emf = Persistence.createEntityManagerFactory( "launchContext" );
+		// parameterized properties
+		Properties sysprops = System.getProperties();
+		Map<String, String> perprops = new HashMap<String, String>();
+		perprops.put("javax.persistence.jdbc.url", (String)sysprops.get("jdbcUrl"));
+		perprops.put("javax.persistence.jdbc.user", (String)sysprops.get("jdbcUser"));
+		perprops.put("javax.persistence.jdbc.password", (String)sysprops.get("jdbcPassword"));
+		System.out.println(perprops);
+	    emf = Persistence.createEntityManagerFactory( "launchContext" , perprops);
 	}
 
 	public void gc() {

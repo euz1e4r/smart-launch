@@ -14,7 +14,7 @@ import javax.persistence.TemporalType;
  * Persistence recond
  */
 @Entity
-@Table(name="LAUNCHCONTEXT")
+@Table(name="SMARTLAUNCHCONTEXT")
 @NamedQuery(name=LaunchContextRecord.QUERY_GC, query="delete from LaunchContextRecord where expiry < current_timestamp")
 public class LaunchContextRecord {
 	

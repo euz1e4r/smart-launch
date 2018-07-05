@@ -7,10 +7,8 @@
 		<provider>org.eclipse.persistence.jpa.PersistenceProvider</provider>
 		<class>com.knowmed.auth.LaunchContextRecord</class>
 		<properties>
+			<!-- Addition parameterized configuration is in com.knowmed.auth.SmartLaunchPersistJPA.setUp() -->
 			<property name="eclipselink.session-name" value="launchContext" />
-			<property name="javax.persistence.jdbc.url" value="${jdbcUrl}" />
-			<property name="javax.persistence.jdbc.user" value="${jdbcUser}" />
-			<property name="javax.persistence.jdbc.password" value="${jdbcPassword}" />
 			<property name="eclipselink.target-server" value="None" />
 			<property name="eclipselink.logging.level" value="INFO" />
 			<property name="eclipselink.validation-only" value="false" />
