@@ -2,7 +2,6 @@ package com.knowmed.auth;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Properties;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
@@ -51,13 +50,23 @@ public class SmartLaunchPersistJPA implements SmartLaunchPersist {
 	
 	protected void setUp() throws Exception {
 		// parameterized properties
-		Properties sysprops = System.getProperties();
 		Map<String, String> perprops = new HashMap<String, String>();
-		perprops.put("javax.persistence.jdbc.url", (String)sysprops.get("jdbcUrl"));
-		perprops.put("javax.persistence.jdbc.user", (String)sysprops.get("jdbcUser"));
-		perprops.put("javax.persistence.jdbc.password", (String)sysprops.get("jdbcPassword"));
+		setProperty("jdbcUrl", "javax.persistence.jdbc.url", null, perprops);
+		setProperty("jdbcUser", "javax.persistence.jdbc.user", "oauth", perprops);
+		setProperty("jdbcPassword", "javax.persistence.jdbc.password", "test", perprops);
 		System.out.println(perprops);
 	    emf = Persistence.createEntityManagerFactory( "launchContext" , perprops);
+	}
+	
+	private void setProperty(String systemPropertyName, String targetPropertyName, String defaultValue, Map<String,String> target) {
+		String value = System.getProperty(systemPropertyName);
+		if (value == null) {
+			if (defaultValue == null) {
+				throw new RuntimeException(systemPropertyName + ": missing system property");
+			}
+			value = defaultValue;
+		}
+		target.put(targetPropertyName, value);
 	}
 
 	public void gc() {
