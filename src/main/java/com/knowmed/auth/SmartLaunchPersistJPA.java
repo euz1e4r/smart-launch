@@ -1,7 +1,9 @@
 package com.knowmed.auth;
 
+import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Properties;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
@@ -52,19 +54,41 @@ public class SmartLaunchPersistJPA implements SmartLaunchPersist {
 		// parameterized properties
 		// Match parameter names with oidc so we share a schema.
 		
-		Map<String, String> perprops = new HashMap<String, String>();
-		setProperty("OAUTH_JDBC_URL", "javax.persistence.jdbc.url", null, perprops);
-		setProperty("OAUTH_USER_NAME", "javax.persistence.jdbc.user", "oauth", perprops);
-		setProperty("OAUTH_PASSWORD", "javax.persistence.jdbc.password", "test", perprops);
-		System.out.println(perprops);
-	    emf = Persistence.createEntityManagerFactory( "launchContext" , perprops);
+		// Access environment variable LYNXEMR_PROPERTY_FILE
+		String LYNXEMR_PROPERTY_FILE = System.getenv("LYNXEMR_PROPERTY_FILE");
+		
+		if (LYNXEMR_PROPERTY_FILE == null) {
+			throw new RuntimeException("LYNXEMR_PROPERTY_FILE: missing environment variable");
+		}
+		
+		// read properties file
+		ClassLoader loader = Thread.currentThread().getContextClassLoader();    
+		InputStream stream = loader.getResourceAsStream(LYNXEMR_PROPERTY_FILE);
+		
+		if (stream == null) {
+			throw new RuntimeException(LYNXEMR_PROPERTY_FILE + ": file not found");
+		}
+		
+		Properties lynxEmrProperties = new Properties();
+		lynxEmrProperties.load(stream);
+		
+		// Build properties to pass to JPA
+		Map<String, String> persistenceProperties = new HashMap<String, String>();
+		setProperty(lynxEmrProperties, "OAUTH_JDBC_URL", "javax.persistence.jdbc.url", null, persistenceProperties);
+		setProperty(lynxEmrProperties, "OAUTH_USER_NAME", "javax.persistence.jdbc.user", "oauth", persistenceProperties);
+		setProperty(lynxEmrProperties, "OAUTH_PASSWORD", "javax.persistence.jdbc.password", "test", persistenceProperties);
+		
+		System.out.println(persistenceProperties); // display properties
+		
+		String persistenceUnitName = "launchContext";
+	    emf = Persistence.createEntityManagerFactory(persistenceUnitName, persistenceProperties);
 	}
 	
-	private void setProperty(String systemPropertyName, String targetPropertyName, String defaultValue, Map<String,String> target) {
-		String value = System.getProperty(systemPropertyName);
+	private void setProperty(Properties source, String sourcePropertyName, String targetPropertyName, String defaultValue, Map<String,String> target) {
+		String value = source.getProperty(sourcePropertyName);
 		if (value == null) {
 			if (defaultValue == null) {
-				throw new RuntimeException(systemPropertyName + ": missing system property");
+				throw new RuntimeException(sourcePropertyName + ": missing system property");
 			}
 			value = defaultValue;
 		}
