@@ -1,14 +1,21 @@
 Smart on fire launch context servlet
 
-Packaging
-The servlet is delivered as a war file, smart-launch.war, which works when dropped into a JBoss deployment environment.
+This servlet is a stand-alone smart on fhir launch context writable REST repository. It allows
+multiple instances of g1 EHR to register launch contexts via POST.
+The single shared oidc instance then accesses the launch context via GET.
+
+Packaging & Deployment
+The servlet is delivered as a war file, smart-launch.war, which works when dropped into a JBoss
+deployment environment. It is intended that the smart-launch.war share a JBoss container
+with Open ID Connect.
 
 Parameters
 The servlet is dependent on and configured by these Java system parameters.
+The parameter names intentionally match those of our Mitre Open Id Connect instance.
  
-     jdbcUrl
-     jdbcUser
-     jbdcPassword
+     OAUTH_JDBC_URL
+     OAUTH_USER_NAME
+     OAUTH_PASSWORD
      
 Protocol
 	HTTP GET - smart launch is compatible with the Mitre OIDC server.
@@ -17,4 +24,3 @@ Protocol
 			key - primary key(s) to store by. Multiple keys are supported.
 			value - JSON, exactly as to be delivered via GET
 			expiry - expiration time, large integer, millisecond of epoch. Optional.
-	Key date likely includes the launch context id and the access token.

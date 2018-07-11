@@ -26,7 +26,18 @@ public class SmartLaunchContextServlet extends HttpServlet {
 	private final static Logger logger = Logger.getLogger(SmartLaunchContextServlet.class);
 	private final SmartLaunchPersist persist = new SmartLaunchPersistJPA();
 	private final static ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
+	private final static String JSON_EMPTY_PARAMETERS = "{\"parameters\":{}}";
+	
+	private enum HttpMethod {
+		GET,PUT,POST,DELETE
+	}
 
+	@Override
+	public void init() throws ServletException {
+		super.init();
+		executor.scheduleWithFixedDelay(new GarbageCollector(), 0, 1, TimeUnit.HOURS);
+	}
+	
 	@Override
 	protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 		try {
@@ -36,21 +47,39 @@ public class SmartLaunchContextServlet extends HttpServlet {
 			String[] pieces = uri.split("/");
 			String launchContextId = pieces[pieces.length-1];
 			String json = persist.fetch(launchContextId);
-			if (json != null) {
-				resp.getWriter().write(json);
+			if (json == null) {
+				json = JSON_EMPTY_PARAMETERS;
 			}
+			resp.getWriter().write(json);
 		}
 		catch (Exception e) {
 			logger.warn(e.getMessage(), e);
 			resp.setStatus(HttpStatus.SC_INTERNAL_SERVER_ERROR);
 		}
 	}
+	
+	public final class GarbageCollector implements Runnable {
+		public GarbageCollector(){
+		}
+		public void run() {
+			persist.gc();
+		}
+	}
 
 	@Override
 	protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+		store(HttpMethod.POST, req, resp);
+	}
+
+	@Override
+	protected void doPut(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+		store(HttpMethod.PUT, req, resp);
+	}
+	
+	private void store(HttpMethod method, HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 		try {
 			String[] keys = req.getParameterValues("key");
-			String value = req.getParameter("value");
+			String value  = req.getParameter("value");
 			String expiry = req.getParameter("expiry");
 			if (keys == null || keys.length == 0|| value == null) {
 				throw new RuntimeException("missing key or value");
@@ -63,21 +92,7 @@ public class SmartLaunchContextServlet extends HttpServlet {
 			resp.setStatus(HttpStatus.SC_INTERNAL_SERVER_ERROR);
 		}
 	}
-
-	@Override
-	public void init() throws ServletException {
-		super.init();
-		executor.scheduleWithFixedDelay(new GarbageCollector(), 0, 1, TimeUnit.HOURS);
-	}
 	
-	public final class GarbageCollector implements Runnable {
-		public GarbageCollector(){
-		}
-		public void run() {
-			persist.gc();
-		}
-	}
-
 	@Override
 	protected void doDelete(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 		try {

@@ -50,10 +50,12 @@ public class SmartLaunchPersistJPA implements SmartLaunchPersist {
 	
 	protected void setUp() throws Exception {
 		// parameterized properties
+		// Match parameter names with oidc so we share a schema.
+		
 		Map<String, String> perprops = new HashMap<String, String>();
-		setProperty("jdbcUrl", "javax.persistence.jdbc.url", null, perprops);
-		setProperty("jdbcUser", "javax.persistence.jdbc.user", "oauth", perprops);
-		setProperty("jdbcPassword", "javax.persistence.jdbc.password", "test", perprops);
+		setProperty("OAUTH_JDBC_URL", "javax.persistence.jdbc.url", null, perprops);
+		setProperty("OAUTH_USER_NAME", "javax.persistence.jdbc.user", "oauth", perprops);
+		setProperty("OAUTH_PASSWORD", "javax.persistence.jdbc.password", "test", perprops);
 		System.out.println(perprops);
 	    emf = Persistence.createEntityManagerFactory( "launchContext" , perprops);
 	}
