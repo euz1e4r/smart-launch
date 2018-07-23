@@ -1,6 +1,5 @@
 package com.knowmed.auth;
 
-import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
@@ -54,29 +53,13 @@ public class SmartLaunchPersistJPA implements SmartLaunchPersist {
 		// parameterized properties
 		// Match parameter names with oidc so we share a schema.
 		
-		// Access environment variable LYNXEMR_PROPERTY_FILE
-		String LYNXEMR_PROPERTY_FILE = System.getenv("LYNXEMR_PROPERTY_FILE");
-		
-		if (LYNXEMR_PROPERTY_FILE == null) {
-			throw new RuntimeException("LYNXEMR_PROPERTY_FILE: missing environment variable");
-		}
-		
-		// read properties file
-		ClassLoader loader = Thread.currentThread().getContextClassLoader();    
-		InputStream stream = loader.getResourceAsStream(LYNXEMR_PROPERTY_FILE);
-		
-		if (stream == null) {
-			throw new RuntimeException(LYNXEMR_PROPERTY_FILE + ": file not found");
-		}
-		
-		Properties lynxEmrProperties = new Properties();
-		lynxEmrProperties.load(stream);
+		Properties systemProperties = System.getProperties();
 		
 		// Build properties to pass to JPA
 		Map<String, String> persistenceProperties = new HashMap<String, String>();
-		setProperty(lynxEmrProperties, "OAUTH_JDBC_URL", "javax.persistence.jdbc.url", null, persistenceProperties);
-		setProperty(lynxEmrProperties, "OAUTH_USER_NAME", "javax.persistence.jdbc.user", "oauth", persistenceProperties);
-		setProperty(lynxEmrProperties, "OAUTH_PASSWORD", "javax.persistence.jdbc.password", "test", persistenceProperties);
+		setProperty(systemProperties, "OAUTH_JDBC_URL",  "javax.persistence.jdbc.url",      null,    persistenceProperties);
+		setProperty(systemProperties, "OAUTH_USER_NAME", "javax.persistence.jdbc.user",     "oauth", persistenceProperties);
+		setProperty(systemProperties, "OAUTH_PASSWORD",  "javax.persistence.jdbc.password", "test",  persistenceProperties);
 		
 		System.out.println(persistenceProperties); // display properties
 		
