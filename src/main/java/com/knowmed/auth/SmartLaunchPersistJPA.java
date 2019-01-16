@@ -6,6 +6,7 @@ import java.util.Properties;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
+import javax.persistence.NoResultException;
 import javax.persistence.Persistence;
 
 public class SmartLaunchPersistJPA implements SmartLaunchPersist {
@@ -23,8 +24,15 @@ public class SmartLaunchPersistJPA implements SmartLaunchPersist {
 	public String fetch(String key) {
 		EntityManager em = emf.createEntityManager();
 		try {
-			LaunchContextRecord ctx = em.find(LaunchContextRecord.class, key);
+			em.getTransaction().begin();
+			LaunchContextRecord ctx = (LaunchContextRecord) em.createNamedQuery(LaunchContextRecord.QUERY_FIND)
+					.setParameter("key", key)
+					.getSingleResult();
+			em.getTransaction().commit();
 			return ctx == null ? null : ctx.getValue();
+		}
+		catch (NoResultException e) {
+			return null;
 		}
 		finally {
 			em.close();
@@ -60,6 +68,8 @@ public class SmartLaunchPersistJPA implements SmartLaunchPersist {
 		setProperty(systemProperties, "OAUTH_JDBC_URL",  "javax.persistence.jdbc.url",      null,    persistenceProperties);
 		setProperty(systemProperties, "OAUTH_USER_NAME", "javax.persistence.jdbc.user",     "oauth", persistenceProperties);
 		setProperty(systemProperties, "OAUTH_PASSWORD",  "javax.persistence.jdbc.password", "test",  persistenceProperties);
+		
+		persistenceProperties.put("eclipselink.cache.shared.default", "false");
 		
 		System.out.println(persistenceProperties); // display properties
 		
